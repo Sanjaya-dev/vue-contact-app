@@ -19,12 +19,26 @@ const dataContact = ref([
   }
 ])
 
+// menyimpan id contact yang sedang diedit
+const editContactId = ref<number | null>(null);
+
 function addContact() {
-  dataContact.value.push({
-    id: dataContact.value.length + 1,
-    name: formInput.value.name,
-    phone: formInput.value.phone
-  })
+  if (editContactId.value) {
+    const contactIndex = dataContact.value.findIndex((contact) => contact.id === editContactId.value);
+    if (contactIndex !== -1) {
+      dataContact.value[contactIndex] = {
+        id: dataContact.value[contactIndex].id,
+        name: formInput.value.name,
+        phone: formInput.value.phone
+      };
+    }
+  } else {
+    dataContact.value.push({
+      id: dataContact.value.length + 1,
+      name: formInput.value.name,
+      phone: formInput.value.phone
+    })
+  }
 }
 
 function deleteContact(id : number) {
@@ -36,17 +50,18 @@ function editContact(id : number) {
   if (contact) {
     formInput.value.name = contact.name
     formInput.value.phone = contact.phone
+    editContactId.value = id
   }
 }
 
 </script>
 
 <template>
-  <h1>Hello World</h1>
+  <h1>Contact App</h1>
   <form @submit.prevent="addContact">
     <input type="text" placeholder="name" v-model="formInput.name" />
     <input type="text" placeholder="phone" v-model="formInput.phone" />
-    <button>Add Contact</button>
+    <button type="submit">{{ editContactId ? 'Update' : 'Add' }}</button>
   </form>
   <ul>
     <li v-for="contact in dataContact" :key="contact.id">
